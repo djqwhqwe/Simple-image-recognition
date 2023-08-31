@@ -9,6 +9,7 @@
 using namespace cv;
 using namespace std;  //Для упрощения
 
+
 bool isImage(const filesystem::path& path) {
     string extension = path.extension().string();
     transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
