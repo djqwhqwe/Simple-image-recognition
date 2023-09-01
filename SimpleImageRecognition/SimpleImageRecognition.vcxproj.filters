@@ -19,4 +19,42 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="testdata\173831.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\174010.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\174317.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\174345.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\174720.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\175306.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\175352.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\175435.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\175559.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\cartest.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="testdata\cartest2.jpg">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vehicle_detector.yml" />
+  </ItemGroup>
 </Project>

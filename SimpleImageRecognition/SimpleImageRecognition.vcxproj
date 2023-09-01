@@ -135,6 +135,22 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="testdata\173831.png" />
+    <Image Include="testdata\174010.png" />
+    <Image Include="testdata\174317.png" />
+    <Image Include="testdata\174345.png" />
+    <Image Include="testdata\174720.png" />
+    <Image Include="testdata\175306.png" />
+    <Image Include="testdata\175352.png" />
+    <Image Include="testdata\175435.png" />
+    <Image Include="testdata\175559.png" />
+    <Image Include="testdata\cartest.jpg" />
+    <Image Include="testdata\cartest2.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vehicle_detector.yml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

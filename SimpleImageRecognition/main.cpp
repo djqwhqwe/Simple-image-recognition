@@ -7,8 +7,23 @@
 #include <vector>
 
 using namespace cv;
+using namespace cv::ml;
 using namespace std;  //Для упрощения
 
+void get_svm(const Ptr<SVM>& svm, vector<float>& svmDetector) {
+    Mat sv = svm->getSupportVectors();
+    const int sv_total = sv.rows;
+    Mat alpha, svidx;
+    double rho = svm->getDecisionFunction(0, alpha, svidx);
+    CV_Assert(alpha.total() == 1 && svidx.total() == 1 && sv_total == 1);
+    CV_Assert((alpha.type() == CV_64F && alpha.at<double>(0) == 1.) ||
+        (alpha.type() == CV_32F && alpha.at<float>(0) == 1.f));
+    CV_Assert(sv.type() == CV_32F);
+    svmDetector.clear();
+    svmDetector.resize(sv.cols + 1);
+    memcpy(&svmDetector[0], sv.ptr(), sv.cols * sizeof(svmDetector[0]));
+    svmDetector[sv.cols] = (float)-rho;
+}
 
 bool isImage(const filesystem::path& path) {
     string extension = path.extension().string();
@@ -18,8 +33,8 @@ bool isImage(const filesystem::path& path) {
         : false;
 }
 
-int main(int argc, char** argv) {
-    string path = "D:/work/opencvtask";
+int main() {
+    string path = "./testdata";
 
     if (!filesystem::exists(path)) {
         cerr << "Directory does not exist" << endl;
@@ -38,52 +53,56 @@ int main(int argc, char** argv) {
         cerr << "No read or write permissions" << endl;
         return -1;
     }
-
-    CascadeClassifier car_classifier, person_classifier;
-
-    if (!car_classifier.load(
-        "C:/opencv/sources/data/haarcascades/haarcascade_fullbody.xml")) {
-        cerr << "OpenCV model for cars recognition is not found.";
-        return -1;
-    }
-    if (!person_classifier.load(
-        "C:/opencv/sources/data/haarcascades/haarcascade_fullbody.xml")) {
-        cerr << "OpenCV model for a person recognition is not found.";
-        return -1;
-    }
     for (const auto& entry : filesystem::directory_iterator(path)) {
-        vector<Rect> cars_rect;
+        Mat img;
 
-        vector<Rect> person_rect;
+        Ptr<SVM> svm = StatModel::load<SVM>("vehicle_detector.yml");
+
+        HOGDescriptor hog;
+
+        hog.winSize = Size(40, 40);
+
+        vector<Rect> detections;
+
+        vector<float> svmDetector;
 
         string path = entry.path().string();
 
         if (!isImage(entry)) continue;
 
-        Mat img = imread(path);
+        img = imread(path);
 
         if (img.empty()) continue;
 
-        car_classifier.detectMultiScale(img, cars_rect, 1.1, 10);
+        get_svm(svm, svmDetector);
 
-        person_classifier.detectMultiScale(img, person_rect, 1.1, 10);
+        hog.setSVMDetector(svmDetector);
 
-        for (int i = 0; i < cars_rect.size(); i++) {
-            rectangle(img, cars_rect[i].tl(), cars_rect[i].br(),
-                Scalar(0, 0, 255), 3);
-            putText(img, "CAR", cars_rect[i].tl(), FONT_HERSHEY_SIMPLEX, 1,
-                Scalar(0, 0, 255), 2);
+        detections.clear();
+
+        hog.detectMultiScale(img, detections);
+
+        for (auto& detection : detections) {
+            rectangle(img, detection.tl(), detection.br(), Scalar(0, 0, 255), 1);
+            putText(img, "CAR", detection.tl(), FONT_HERSHEY_SIMPLEX, 1,
+                Scalar(0, 0, 255), 1);
         }
-        
-        for (int i = 0; i < person_rect.size(); i++) {
-            rectangle(img, person_rect[i].tl(), person_rect[i].br(),
-                Scalar(0, 0, 255), 3);
-            putText(img, "PERSON", cars_rect[i].tl(), FONT_HERSHEY_SIMPLEX, 1,
-                Scalar(0, 0, 255), 2);
+
+        hog.winSize = Size(64, 128);
+
+        hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+
+        detections.clear();
+
+        hog.detectMultiScale(img, detections, 0, Size(8, 8), Size(32, 32), 1.2, 2);
+
+        for (auto& detection : detections) {
+            cv::rectangle(img, detection.tl(), detection.br(), Scalar(0, 0, 255), 1);
+            putText(img, "PERSON", detection.tl(), FONT_HERSHEY_SIMPLEX, 1,
+                Scalar(0, 0, 255), 1);
         }
 
         imwrite(path + "_copy" + entry.path().extension().string(), img);
     }
-
     return 0;
 }
